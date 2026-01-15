@@ -9,7 +9,7 @@ export default function Dashboard() {
   const [approvedHours, setApprovedHours] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   
-  // ดึงข้อมูลผู้ใช้จาก localStorage (ตรวจสอบ key ให้ตรงกับที่เก็บตอน Login)
+  // ดึงข้อมูลผู้ใช้จาก localStorage
   const user = JSON.parse(localStorage.getItem('user_info')) || { first_name: 'นักศึกษา' };
 
   useEffect(() => {
@@ -36,60 +36,64 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans relative">
-      {/* 1. ส่วนแถบเมนู (Navbar) */}
+      {/* 1. Navbar: จัดการ Login/Logout และนำทาง */}
       <Navbar />
 
       <main className="max-w-7xl mx-auto p-4 md:p-10 space-y-8 mb-20">
         
-        {/* 2. ส่วนสรุปผล (Hero Section) */}
+        {/* 2. Hero Section: สรุปชั่วโมงกิจกรรม */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* การ์ดทักทายแบบพรีเมียม */}
-          <div className="lg:col-span-2 bg-white p-8 md:p-14 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-white flex flex-col justify-center animate-in fade-in slide-in-from-left-6 duration-1000">
+          <div className="lg:col-span-2 bg-white p-8 md:p-14 rounded-[3.5rem] shadow-xl shadow-slate-200/50 border border-white flex flex-col justify-center animate-in fade-in slide-in-from-left-6 duration-1000">
             <div className="flex items-center gap-3 mb-4 text-indigo-600 font-bold tracking-widest uppercase text-xs">
                <span className="w-8 h-[2px] bg-indigo-600"></span>
-               Overview Report
+               Student Performance
             </div>
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
               สวัสดี, {user.first_name} 👋
             </h2>
             <div className="space-y-2">
-               <p className="text-slate-500 text-lg md:text-xl leading-relaxed">
+               <p className="text-slate-500 text-lg md:text-xl leading-relaxed font-medium">
                  {approvedHours >= 50 
-                   ? "ยินดีด้วย! คุณสะสมชั่วโมงครบถ้วนตามเกณฑ์ 50 ชั่วโมงแล้ว" 
-                   : `คุณสะสมไปแล้ว ${approvedHours} ชม. ต้องการอีกเพียง ${Math.max(0, 50 - approvedHours)} ชม. เพื่อผ่านเกณฑ์กิจกรรม`}
+                   ? "ยอดเยี่ยมมาก! คุณสะสมชั่วโมงกิจกรรมครบตามเกณฑ์แล้ว" 
+                   : `คุณสะสมไปแล้ว ${approvedHours} ชม. ขาดอีก ${Math.max(0, 50 - approvedHours)} ชม. จะผ่านเกณฑ์`}
                </p>
-               {/* Progress Bar เล็กๆ เพิ่มความสวยงาม */}
-               <div className="w-full h-3 bg-slate-100 rounded-full mt-4 overflow-hidden">
+               {/* Progress Bar แสดงความก้าวหน้า */}
+               <div className="w-full h-4 bg-slate-100 rounded-full mt-6 overflow-hidden border border-slate-50">
                   <div 
-                    className="h-full bg-indigo-600 transition-all duration-1000 rounded-full shadow-[0_0_15px_rgba(79,70,229,0.4)]"
+                    className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-1000 rounded-full shadow-[0_0_20px_rgba(79,70,229,0.3)]"
                     style={{ width: `${Math.min(100, (approvedHours/50)*100)}%` }}
                   ></div>
                </div>
             </div>
           </div>
 
-          {/* การ์ดกราฟวงกลม */}
-          <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-white flex flex-col items-center justify-center animate-in fade-in slide-in-from-right-6 duration-1000">
+          <div className="bg-white p-10 rounded-[3.5rem] shadow-xl shadow-slate-200/50 border border-white flex flex-col items-center justify-center animate-in fade-in slide-in-from-right-6 duration-1000">
              <ActivityChart approvedHours={approvedHours} />
              <div className="mt-6 text-center">
-                <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Activity Progress</p>
-                <p className="text-sm font-bold text-indigo-600 mt-1">{Math.round((approvedHours/50)*100)}% Completed</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Total Progress</p>
+                <p className="text-lg font-black text-indigo-600 mt-1">{Math.round((approvedHours/50)*100)}%</p>
              </div>
           </div>
         </div>
 
-        {/* 3. ส่วนรายการที่ต้องทำ (Todo List) */}
+        {/* 3. Todo Section: ระบบจัดการงานที่ต้องทำ (เพิ่ม-เก็บ-แสดงผล) */}
         <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-200">
-           <div className="flex items-center gap-4 mb-6 px-4">
-              <div className="w-2.5 h-8 bg-indigo-600 rounded-full"></div>
-              <h3 className="text-2xl font-black text-slate-800">จัดการงานสำคัญ</h3>
+           <div className="flex items-center justify-between mb-8 px-6">
+              <div className="flex items-center gap-4">
+                <div className="w-2 h-10 bg-indigo-600 rounded-full"></div>
+                <div>
+                  <h3 className="text-3xl font-black text-slate-800 tracking-tight">รายการที่ต้องทำ</h3>
+                  <p className="text-slate-400 text-sm font-medium italic">วางแผนและจัดการตารางเรียน/กิจกรรมของคุณ</p>
+                </div>
+              </div>
            </div>
+
+           {/* TodoWidget จะมีทั้งฟอร์มกรอกและตารางแสดงผลในตัวเดียว */}
            <TodoWidget />
         </div>
       </main>
 
-      {/* 4. ผู้ช่วย AI (ChatBot) */}
       <ChatBot />
     </div>
   );
