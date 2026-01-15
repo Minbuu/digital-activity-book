@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Http\Controllers\Api\ChatController;
 
 
 
@@ -29,5 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // URL จะเป็น: http://localhost:8000/api/users
     Route::get('/users', [UserController::class, 'index']); // ดึงข้อมูล
     Route::post('/users', [UserController::class, 'store']); // สร้างข้อมูล
+    // ถ้าอยากให้คนล็อกอินเท่านั้นถึงถามได้ ให้เอาไปไว้ในกลุ่ม middleware auth:sanctum
+    Route::post('/chat', [ChatController::class, 'ask']);
 });
-
