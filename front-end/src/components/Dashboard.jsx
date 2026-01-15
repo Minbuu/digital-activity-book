@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import ChatBot from './ChatBot'; // << ต้องมีไฟล์ ChatBot.jsx ในโฟลเดอร์เดียวกัน
+import ChatBot from './ChatBot'; 
+import ActivityTable from './ActivityTable'; // 1. อ้างอิงไฟล์ตารางกิจกรรม
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -25,23 +26,40 @@ export default function Dashboard() {
       <nav className="bg-white shadow-sm p-4 mb-6 rounded-lg flex justify-between items-center">
         <h1 className="text-xl font-bold text-indigo-600">Digital Activity Book</h1>
         <div className="flex items-center gap-4">
-          <span>สวัสดี, {user.name}</span>
-          <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded">ออกจากระบบ</button>
+          <span className="text-gray-700 font-medium">สวัสดี, {user.name}</span>
+          <button 
+            onClick={handleLogout} 
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors shadow-sm"
+          >
+            ออกจากระบบ
+          </button>
         </div>
       </nav>
 
       {/* Main Content: แบ่งเป็น 2 ฝั่ง */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* ฝั่งซ้าย: ข้อมูลกิจกรรม */}
-        <div className="md:col-span-2 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-2xl font-bold mb-4">ยินดีต้อนรับ! 🎉</h2>
-          <p>ตอนนี้คุณสามารถจัดการกิจกรรมและสอบถามกฎระเบียบผ่าน AI ได้แล้ว</p>
+        
+        {/* ฝั่งซ้าย (กินพื้นที่ 2 ใน 3): แสดงตารางกิจกรรม */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">ยินดีต้อนรับ! 🎉</h2>
+            <p className="text-gray-500">จัดการกิจกรรมและตรวจสอบสถานะการรับรองได้ที่นี่</p>
+          </div>
+
+          {/* 2. แสดง Component ตารางกิจกรรมที่นี่ */}
+          <ActivityTable /> 
         </div>
 
-        {/* ฝั่งขวา: พี่ระเบียบ AI */}
+        {/* ฝั่งขวา (กินพื้นที่ 1 ใน 3): พี่ระเบียบ AI */}
         <div className="md:col-span-1">
-          <ChatBot /> 
+          <div className="sticky top-6">
+            <ChatBot />
+            <p className="text-center text-xs text-gray-400 mt-4 italic">
+              * สงสัยระเบียบกิจกรรม? ถามพี่ระเบียบได้เลย
+            </p>
+          </div>
         </div>
+
       </div>
     </div>
   );
