@@ -60,23 +60,12 @@ export default function Navbar() {
                                 {/* 🏠 หน้าหลัก: มีให้ทุกคน */}
                                 <Link to="/" className={getLinkClass('/')}>หน้าหลัก</Link>
                                 
-                                {/* 📘 เมนูกิจกรรม: 💡 แสดงเฉพาะนักศึกษา (student) เท่านั้น */}
+                                {/* 📘 เมนูกิจกรรม: แสดงเฉพาะนักศึกษาเท่านั้น */}
                                 {user.role === 'student' && (
                                     <Link to="/activities" className={getLinkClass('/activities')}>กิจกรรม</Link>
                                 )}
                                 
-                                {/* 🔍 เมนู SCANNER: 💡 แสดงเฉพาะ อาจารย์/เจ้าหน้าที่ เท่านั้น */}
-                                {(user.role === 'teacher' || user.role === 'council' || user.role === 'admin') && (
-                                    <Link 
-                                        to="/teacher/scanner" 
-                                        className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[11px] font-black hover:bg-indigo-600 transition-all shadow-lg active:scale-95 group"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                        </svg>
-                                        SCANNER
-                                    </Link>
-                                )}
+                                {/* 💡 ปุ่ม Scanner ถูกเอาออกตามคำขอ เพื่อไปใช้ปุ่มที่หน้า Dashboard แทน */}
                             </div>
                         )}
                     </div>

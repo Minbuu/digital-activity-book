@@ -19,13 +19,20 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'first_name',
+        'last_name',
         'password',
         'username', // อย่าลืมเพิ่ม username ด้วยนะครับ ถ้ายังไม่มี
         'role',     // เพิ่ม role ด้วยถ้ามี
-        'student_id' // เพิ่ม student_id ด้วยถ้ามี
+        'student_id',
+        'advisor_id',
+        'class_group'
     ];
+    public function activities()
+    {
+        return $this->hasMany(Activity::class, 'user_id');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

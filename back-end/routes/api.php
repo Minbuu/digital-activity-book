@@ -45,7 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/approve-scanner', [ActivityController::class, 'approveByScanner']);
     // สำหรับหน้า Dashboard ของอาจารย์
     Route::get('/teacher/class-stats', [ActivityController::class, 'getMyClassStats']);
-    
-    // สำหรับการสแกน
-    Route::post('/approve-scanner', [ActivityController::class, 'approveByScanner']);
+    Route::get('/teacher/student-history/{studentId}', [ActivityController::class, 'getStudentActivityHistory']);
 });
