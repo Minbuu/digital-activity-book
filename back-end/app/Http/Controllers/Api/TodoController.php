@@ -18,7 +18,7 @@ class TodoController extends Controller
             ->orderBy('todo_date', 'asc')
             ->orderBy('todo_time', 'asc')
             ->get();
-            
+
         return response()->json($todos);
     }
 
@@ -53,7 +53,7 @@ class TodoController extends Controller
     public function updateStatus($id): JsonResponse
     {
         $todo = Todo::where('user_id', auth()->id())->findOrFail($id);
-        
+
         $todo->status = ($todo->status === 'pending') ? 'completed' : 'pending';
         $todo->save();
 
@@ -70,6 +70,20 @@ class TodoController extends Controller
 
         return response()->json([
             'message' => 'ลบข้อมูลสำเร็จ'
+        ]);
+    }
+
+    public function getStats(): JsonResponse
+    {
+        $total = Todo::where('user_id', auth()->id())->count();
+        $completed = Todo::where('user_id', auth()->id())->where('status', 'completed')->count();
+        $pending = $total - $completed;
+
+        return response()->json([
+            'total' => $total,
+            'completed' => $completed,
+            'pending' => $pending,
+            'percentage' => $total > 0 ? round(($completed / $total) * 100) : 0
         ]);
     }
 }

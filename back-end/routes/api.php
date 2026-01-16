@@ -34,6 +34,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
     Route::get('/users', [UserController::class, 'index']); // ดึงข้อมูล
     Route::post('/users', [UserController::class, 'store']); // สร้างข้อมูล
-    // ถ้าอยากให้คนล็อกอินเท่านั้นถึงถามได้ ให้เอาไปไว้ในกลุ่ม middleware auth:sanctum
+    Route::get('/todos-stats', [TodoController::class, 'getStats']);
+    Route::put('/profile/update', [UserController::class, 'updateProfile']);
+    Route::post('/profile/change-password', [UserController::class, 'changePassword']);
     Route::post('/chat', [ChatController::class, 'ask']);
+    Route::get('/activities', [ActivityController::class, 'index']);
+    // สร้างรหัสยืนยัน (สำหรับนักศึกษาเปิดโชว์)
+    Route::post('/activities/{id}/generate-verification', [ActivityController::class, 'generateVerification']);
+    // อนุมัติผ่านการสแกน (สำหรับอาจารย์)
+    Route::post('/approve-scanner', [ActivityController::class, 'approveByScanner']);
+    // สำหรับหน้า Dashboard ของอาจารย์
+    Route::get('/teacher/class-stats', [ActivityController::class, 'getMyClassStats']);
+    
+    // สำหรับการสแกน
+    Route::post('/approve-scanner', [ActivityController::class, 'approveByScanner']);
 });

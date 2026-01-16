@@ -4,78 +4,98 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityController extends Controller
 {
     /**
-     * ดึงรายการกิจกรรมของนักศึกษา
+     * สำหรับนักศึกษา: ดึงรายการกิจกรรมของตัวเอง
      */
     public function index(Request $request)
     {
         try {
-            // แก้ไข: เปลี่ยนจาก 'name' เป็น 'first_name,last_name' ให้ตรงกับ DB จริง
-            $activities = Activity::with('teacher:id,first_name,last_name') 
-                                  ->where('user_id', $request->user()->id)
-                                  ->orderBy('date', 'desc')
-                                  ->get();
+            $activities = Activity::with('teacher:id,first_name,last_name')
+                ->where('user_id', Auth::id())
+                ->orderBy('date', 'desc')
+                ->get();
 
             return response()->json($activities);
         } catch (\Exception $e) {
-            // ถ้าพังอีก จะได้รู้ว่าพังเพราะอะไร
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * ฟังก์ชันสำหรับสร้าง QR Code
+     * 💡 สำหรับอาจารย์: ดูข้อมูลภาพรวมเฉพาะนักศึกษาในที่ปรึกษา (Advisor View)
      */
-    public function generateVerification(Request $request, $id)
+    public function getMyClassStats(Request $request)
     {
-        $activity = Activity::where('id', $id)
-                            ->where('user_id', $request->user()->id)
-                            ->firstOrFail();
+        $user = Auth::user();
+        $teacherClass = $user->class_group; 
 
-        if (!$activity->verification_code) {
-            $activity->update([
-                'verification_code' => Str::random(32)
-            ]);
+        if (!$teacherClass) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'บัญชีอาจารย์ท่านนี้ยังไม่ได้ระบุกลุ่มเรียนที่ดูแล'
+            ], 400);
         }
 
+        // ดึงรายชื่อนักศึกษาในกลุ่มเรียน พร้อมสรุปผล
+        $students = User::where('role', 'student')
+            ->where('class_group', $teacherClass)
+            ->with(['activities' => function($query) {
+                $query->where('status', 'อนุมัติแล้ว');
+            }])
+            ->get()
+            ->map(function($student) {
+                $totalHours = $student->activities->sum('hours');
+                return [
+                    'id' => $student->id,
+                    'full_name' => $student->first_name . ' ' . $student->last_name,
+                    'total_hours' => $totalHours,
+                    'status' => $totalHours >= 50 ? 'ผ่านเกณฑ์' : 'ยังไม่ครบ',
+                    'progress_percent' => min(100, ($totalHours / 50) * 100),
+                ];
+            });
+
         return response()->json([
-            'status' => 'success',
-            'verification_code' => $activity->verification_code
+            'class_group' => $teacherClass,
+            'total_students' => $students->count(),
+            'passed_count' => $students->where('total_hours', '>=', 50)->count(),
+            'students' => $students
         ]);
     }
 
     /**
-     * ฟังก์ชันสำหรับอาจารย์: ยืนยันกิจกรรม
+     * 💡 สำหรับอาจารย์: อนุมัติผ่านการสแกน QR (Global Scan)
      */
-    public function verify(Request $request)
+    public function approveByScanner(Request $request)
     {
         $request->validate([
-            'verification_code' => 'required|string'
+            'qr_data' => 'required', // ID ของรายการกิจกรรม
         ]);
 
-        $activity = Activity::where('verification_code', $request->verification_code)
-                            ->where('status', 'รอตรวจสอบ')
-                            ->first();
+        $activity = Activity::with('user')->find($request->qr_data);
 
         if (!$activity) {
-            return response()->json(['message' => 'ไม่พบกิจกรรมหรือถูกยืนยันไปแล้ว'], 404);
+            return response()->json(['message' => 'ไม่พบข้อมูลกิจกรรมในระบบ'], 404);
         }
 
         $activity->update([
             'status' => 'อนุมัติแล้ว',
-            'verified_by' => $request->user()->id, // เก็บ ID อาจารย์ที่สแกน
+            'verified_by' => Auth::id(),
             'verified_at' => now(),
-            'verification_code' => null 
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'ยืนยันกิจกรรมสำเร็จแล้ว'
+            'message' => 'เซ็นอนุมัติกิจกรรมสำเร็จ!',
+            'student_name' => $activity->user->first_name . ' ' . $activity->user->last_name,
+            'student_class' => $activity->user->class_group,
+            'activity_title' => $activity->title
         ]);
     }
 }
