@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ActivityController;
+use App\Http\Controllers\Api\TodoController;
 
 
 // Route::get('/user', function (Request $request) {
@@ -27,10 +28,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/activities', [ActivityController::class, 'index']); // ดูรายการ
     Route::post('/activities/{id}/generate-qr', [ActivityController::class, 'generateVerification']); // เจน QR
     Route::post('/activities/verify', [ActivityController::class, 'verify']); // อาจารย์กดเซ็น
-    // ย้าย route users เดิมมาไว้ในนี้ได้ ถ้าอยากให้เฉพาะคนล็อกอินเห็นข้อมูล
-    // Route::get('/users', [UserController::class, 'index']); 
-    // Laravel จะเติม prefix '/api' ให้อัตโนมัติ
-    // URL จะเป็น: http://localhost:8000/api/users
+    Route::get('/todos', [TodoController::class, 'index']);
+    Route::post('/todos', [TodoController::class, 'store']);
+    Route::patch('/todos/{id}/status', [TodoController::class, 'updateStatus']); // 💡 สำหรับกดติ๊กถูก
+    Route::delete('/todos/{id}', [TodoController::class, 'destroy']);
     Route::get('/users', [UserController::class, 'index']); // ดึงข้อมูล
     Route::post('/users', [UserController::class, 'store']); // สร้างข้อมูล
     // ถ้าอยากให้คนล็อกอินเท่านั้นถึงถามได้ ให้เอาไปไว้ในกลุ่ม middleware auth:sanctum
